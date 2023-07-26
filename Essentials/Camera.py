@@ -14,4 +14,8 @@ overlay.load_model("tf_yolov3_voc.xmodel")
 # Video Code
 image_outputs = []
 videoIn = camera.VideoCapture(0)
+videoIn.set(camera.CAP_PROP_FRAME_WIDTH, 640)
+videoIn.set(camera.CAP_PROP_FRAME_HEIGHT, 480)
 
+# Read a frame and extract from camera
+ret, frame = videoIn.read()
