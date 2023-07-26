@@ -5,8 +5,8 @@ import matplotlib.pyplot as plt
 import os
 
 # Import overlay
-from pynq_dpu import DPUOverlay
-overlay = DpuOverlay("base.bit")
+from pynq_dpu import DpuOverlay
+overlay = DpuOverlay("dpu.bit")
 
 # Load the model for AI
 overlay.load_model("tf_yolov3_voc.xmodel")
