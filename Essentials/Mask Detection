@@ -383,7 +383,3 @@ time1 = time.time()
 time2 = time.time()
 fps = total_images/(time2-time1)
 print("Performance: {} FPS".format(fps))
-
-
-del overlay
-del dpu
