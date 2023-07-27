@@ -231,9 +231,9 @@ def captureVideo(frame, display = False):
 
     exit()
     
-    Warning("This board is going to self distruct if program continues? Continue? [Y/N]")
-    answer = input()
-    if answer.upper() == "Y":
-        print("Continuing...")
-    else:
-        print("Terminating program")
+Warning("This board is going to self distruct if program continues? Continue? [Y/N]")
+answer = input()
+if answer.upper() == "Y":
+    print("Continuing...")
+else:
+    print("Terminating program")
