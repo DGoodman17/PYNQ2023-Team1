@@ -1,15 +1,46 @@
 #Main import block
+import os
+import time
+import numpy as np
 import cv2 as camera
 import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib_inline
 import os
-from IPython.display import display
+from IPython.display import display, Image
 import random
 import colorsys
 from matplotlib.patches import Rectangle
+from pynq_dpu import DpuOverlay
 
+#Init the overlay
+overlay = DpuOverlay("dpu.bit")
+
+#Main Var block
+%matplotlib inline
+class_names = f.readlines()
+inputTensors = dpu.get_input_tensors()
+outputTensors = dpu.get_output_tensors()
+
+shapeOut0 = (tuple(outputTensors[0].dims)) # (1, 13, 13, 75)
+shapeOut1 = (tuple(outputTensors[1].dims)) # (1, 26, 26, 75)
+shapeOut2 = (tuple(outputTensors[2].dims)) # (1, 52, 52, 75)
+dpu = overlay.runner
+
+shapeIn = tuple(inputTensors[0].dims)
+input_data = [np.empty(shapeIn, dtype=np.float32, order="C")]
+output_data = [np.empty(shapeOut0, dtype=np.float32, order="C"), 
+               np.empty(shapeOut1, dtype=np.float32, order="C"),
+               np.empty(shapeOut2, dtype=np.float32, order="C")]
+image = input_data[0]
+shapeOut0 = (tuple(outputTensors[0].dims)) # (1, 13, 13, 75)
+shapeOut1 = (tuple(outputTensors[1].dims)) # (1, 26, 26, 75)
+shapeOut2 = (tuple(outputTensors[2].dims)) # (1, 52, 52, 75)
+
+outputSize0 = int(outputTensors[0].get_data_size() / shapeIn[0]) # 12675
+outputSize1 = int(outputTensors[1].get_data_size() / shapeIn[0]) # 50700
+outputSize2 = int(outputTensors[2].get_data_size() / shapeIn[0]) # 202800
 
 # Import overlay
 from pynq_dpu import DpuOverlay
@@ -28,6 +59,30 @@ image_outputs = []
 #ret, frame = videoIn.read()
 
 #Main Function Block
+def run(frame, display=False):
+    
+    # Pre-processing
+    image_size = frame.shape[:2]
+    image_data = np.array(pre_process(frame, (416, 416)), dtype=np.float32)
+    
+    # Fetch data to DPU and trigger it
+    image[0,...] = image_data.reshape(shapeIn[1:])
+    job_id = dpu.execute_async(input_data, output_data)
+    dpu.wait(job_id)
+    
+    # Retrieve output data
+    conv_out0 = np.reshape(output_data[0], shapeOut0)
+    conv_out1 = np.reshape(output_data[1], shapeOut1)
+    conv_out2 = np.reshape(output_data[2], shapeOut2)
+    yolo_outputs = [conv_out0, conv_out1, conv_out2]
+    
+    # Decode output from YOLOv3
+    boxes, scores, classes = evaluate(yolo_outputs, image_size, class_names, anchors)
+    
+    if display:
+        _ = draw_boxes(frame, boxes, scores, classes)
+        
+    return boxes, scores, classes
 
 def get_class(classes_path):
     with open(classes_path) as f:
@@ -231,4 +286,5 @@ def captureVideo(frame, display = False):
 
     exit()
 
-captureVideo(frame, display = False)
+run(captureVideo, itemIdentification,)
+
