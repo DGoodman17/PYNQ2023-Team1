@@ -17,30 +17,11 @@ from pynq_dpu import DpuOverlay
 #Init the overlay
 overlay = DpuOverlay("dpu.bit")
 
+#Init Fuction block
+
+
 #Main Var block
-%matplotlib inline
-class_names = f.readlines()
-inputTensors = dpu.get_input_tensors()
-outputTensors = dpu.get_output_tensors()
-
-shapeOut0 = (tuple(outputTensors[0].dims)) # (1, 13, 13, 75)
-shapeOut1 = (tuple(outputTensors[1].dims)) # (1, 26, 26, 75)
-shapeOut2 = (tuple(outputTensors[2].dims)) # (1, 52, 52, 75)
 dpu = overlay.runner
-
-shapeIn = tuple(inputTensors[0].dims)
-input_data = [np.empty(shapeIn, dtype=np.float32, order="C")]
-output_data = [np.empty(shapeOut0, dtype=np.float32, order="C"), 
-               np.empty(shapeOut1, dtype=np.float32, order="C"),
-               np.empty(shapeOut2, dtype=np.float32, order="C")]
-image = input_data[0]
-shapeOut0 = (tuple(outputTensors[0].dims)) # (1, 13, 13, 75)
-shapeOut1 = (tuple(outputTensors[1].dims)) # (1, 26, 26, 75)
-shapeOut2 = (tuple(outputTensors[2].dims)) # (1, 52, 52, 75)
-
-outputSize0 = int(outputTensors[0].get_data_size() / shapeIn[0]) # 12675
-outputSize1 = int(outputTensors[1].get_data_size() / shapeIn[0]) # 50700
-outputSize2 = int(outputTensors[2].get_data_size() / shapeIn[0]) # 202800
 
 # Import overlay
 from pynq_dpu import DpuOverlay
@@ -56,7 +37,6 @@ image_outputs = []
 #videoIn.set(camera.CAP_PROP_FRAME_HEIGHT, 480)
 
 # Read a frame and extract from camera
-#ret, frame = videoIn.read()
 
 #Main Function Block
 def run(frame, display=False):
@@ -84,11 +64,7 @@ def run(frame, display=False):
         
     return boxes, scores, classes
 
-def get_class(classes_path):
-    with open(classes_path) as f:
-        class_names = f.readlines()
-    class_names = [c.strip() for c in class_names]
-    return class_names
+
 
 # This function resizes the image with unchanged aspect ratio using padding.
 def letterbox_image(image, size):
@@ -279,11 +255,10 @@ def itemIdentification(item, possible_quantity):
         exit
 
 def captureVideo(frame, display = False):
-    # Beginning Video Capture
-    cap = camera.VideoCapture(0)
-    if display:
-        _ = draw_boxes(frame, boxes, scores, classes)
-
+    videoIn = camera.VideoCapture(0)
+    ret, frame = videoIn.read()
+    boxes, scores, classes = run(frame, display = True)
+    print("Camera is " + str(videoIn.isOpened()))
     exit()
 
 run(captureVideo, itemIdentification,)
