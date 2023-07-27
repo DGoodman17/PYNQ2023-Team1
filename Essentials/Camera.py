@@ -231,11 +231,4 @@ def captureVideo(frame, display = False):
 
     exit()
 
-import warnings
-
-warnings.warn("This board is going to self distruct if program continues? Continue? [Y/N]")
-answer = input()
-if answer.upper() == "Y":
-    print("Continuing...")
-else:
-    print("Terminating program")
+captureVideo(frame, display = False)
