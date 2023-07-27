@@ -1,0 +1,13 @@
+from kv260 import BaseOverlay
+from pynq_peripherals import ArduinoSEEEDGroveAdapter, PmodGroveAdapter
+base = BaseOverlay('base.bit')
+adapter = PmodGroveAdapter(base.PMODA, G2='grove_pir')
+from time import sleep
+m = adapter.G2
+from time import sleep
+sample_interval = 0.1 #seconds
+number_of_samples = 1
+while number_of_samples > 0:
+    print('{:.1f}: {}'.format(number_of_samples*sample_interval, "motion detected" if m.motion_detected() else "-"))        
+    sleep(sample_interval)
+    number_of_samples = number_of_samples + 1
