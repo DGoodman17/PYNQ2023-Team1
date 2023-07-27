@@ -27,11 +27,6 @@ videoIn.set(camera.CAP_PROP_FRAME_HEIGHT, 480)
 # Read a frame and extract from camera
 ret, frame = videoIn.read()
 
-
-print("Program working")
-del overlay
-
-
 #Main Function Block
 
 def get_class(classes_path):
@@ -235,3 +230,10 @@ def captureVideo(frame, display = False):
         _ = draw_boxes(frame, boxes, scores, classes)
 
     exit()
+    
+    Warning("This board is going to self distruct if program continues? Continue? [Y/N]")
+    answer = input()
+    if answer.upper() == "Y":
+        print("Continuing...")
+    else:
+        print("Terminating program")
