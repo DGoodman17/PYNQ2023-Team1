@@ -19,3 +19,6 @@ videoIn.set(camera.CAP_PROP_FRAME_HEIGHT, 480)
 
 # Read a frame and extract from camera
 ret, frame = videoIn.read()
+
+print("Program working")
+del overlay
