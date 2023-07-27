@@ -8,6 +8,8 @@ from time import sleep
 sample_interval = 0.1 #seconds
 number_of_samples = 1
 while number_of_samples > 0:
-    print('{:.1f}: {}'.format(number_of_samples*sample_interval, "motion detected" if m.motion_detected() else "-"))        
+    print('{:.1f}: {}'.format(number_of_samples*sample_interval, "motion detected" if m.motion_detected() else "-"))
+    if m.motion_detected:
+        dave_detected = True
     sleep(sample_interval)
     number_of_samples = number_of_samples + 1
