@@ -1,6 +1,6 @@
 import os    # used to execute bash commands to download and uncompress stuff
-import cv2   # OpenCV image processing library
-import glob
+import cv2   # OpenCV image processig library
+import globn
 
 from PIL import Image
 

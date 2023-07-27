@@ -1,7 +1,7 @@
 from pynq_dpu import DpuOverlay
 overlay = DpuOverlay("dpu.bit")
 
-
+import bash
 import os
 import time
 import numpy as np
