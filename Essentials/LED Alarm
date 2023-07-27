@@ -1,30 +1,41 @@
-import numpy as np
-from pynq_peripherals import PmodGroveAdapter
+import os    # used to execute bash commands to download and uncompress stuff
+import cv2   # OpenCV image processing library
+import glob
 
+from PIL import Image
+
+import numpy as np  # For math
+import matplotlib.pyplot as plt  # For plotting stuff
+from pynq_dpu import DpuOverlay   # Overlay for the FPGA
+from pynq_peripherals import PmodGroveAdapter
+from time import sleep
 # setup led bar on the board 
 overlay = DpuOverlay("dpu.bit")
 # setup led bar on the board 
-adapter = PmodGroveAdapter(overlay.PMODA, G2='grove_ledbar')
+adapter = PmodGroveAdapter(overlay.PMODA, G3='grove_ledbar')
 ledbar = adapter.G3
 
 
 
 daveDetected = True
 
-if daveDetected = True:
-  brightness = 3  # brightness of led bars
-green_to_red = 1
+if daveDetected == True:
+    brightness = 3  # brightness of led bars
+    blue_to_red = 1
 
-level = (10 * final_count) // MAX_NUM_PEOPLE # calculate level to set on ledbar
-level = int(level) # requires integer
-
-
-# if level is out of range (1 to 10) then set to minimum or maximum value
-if(level <= 0):
-    level = 1
-elif(level > 10):
     level = 10
 
-# set the level on the led bar
-print("Setting LED level to:", level)
-ledbar.set_level(int(level), brightness, green_to_red)
+    # if level is out of range (1 to 10) then set to minimum or maximum value
+    if(level <= 0):
+        level = 1
+    elif(level > 10):
+        level = 10
+
+    # set the level on the led bar
+    while level != 20:
+        ledbar.set_level(int(level), brightness, blue_to_red)
+        brightness = 4
+        sleep(0.1)
+        ledbar.set_level(int(level), brightness, blue_to_red)
+        brightness = 3
+        sleep(0.1)
