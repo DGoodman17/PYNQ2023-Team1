@@ -21,6 +21,7 @@ overlay = DpuOverlay("dpu.bit")
 dpu = overlay.runner
 videoIn = camera.VideoCapture(0)
 ret, frame = videoIn.read()
+shapeIn = tuple(inputTensors[0].dims)
 
 # Import overlay
 from pynq_dpu import DpuOverlay
