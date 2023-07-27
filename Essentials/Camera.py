@@ -17,11 +17,10 @@ from pynq_dpu import DpuOverlay
 #Init the overlay
 overlay = DpuOverlay("dpu.bit")
 
-#Init Fuction block
-
-
 #Main Var block
 dpu = overlay.runner
+videoIn = camera.VideoCapture(0)
+ret, frame = videoIn.read()
 
 # Import overlay
 from pynq_dpu import DpuOverlay
@@ -254,12 +253,7 @@ def itemIdentification(item, possible_quantity):
         
         exit
 
-def captureVideo(frame, display = False):
-    videoIn = camera.VideoCapture(0)
-    ret, frame = videoIn.read()
-    boxes, scores, classes = run(frame, display = True)
-    print("Camera is " + str(videoIn.isOpened()))
-    exit()
 
-run(captureVideo(frame, display = True), display = True)
 
+
+run(frame, display = True)
