@@ -261,5 +261,5 @@ def captureVideo(frame, display = False):
     print("Camera is " + str(videoIn.isOpened()))
     exit()
 
-run(captureVideo, itemIdentification,)
+run(captureVideo(frame, display = True), display = True)
 
