@@ -6,6 +6,10 @@ import matplotlib.pyplot as plt
 import matplotlib_inline
 import os
 from IPython.display import display
+import random
+import colorsys
+from matplotlib.patches import Rectangle
+
 
 # Import overlay
 from pynq_dpu import DpuOverlay
@@ -29,6 +33,13 @@ del overlay
 
 
 #Main Function Block
+
+def get_class(classes_path):
+    with open(classes_path) as f:
+        class_names = f.readlines()
+    class_names = [c.strip() for c in class_names]
+    return class_names
+
 # This function resizes the image with unchanged aspect ratio using padding.
 def letterbox_image(image, size):
     ih, iw, _ = image.shape
@@ -38,7 +49,7 @@ def letterbox_image(image, size):
     nw = int(iw*scale)
     nh = int(ih*scale)
 
-    image = cv2.resize(image, (nw,nh), interpolation=cv2.INTER_LINEAR)
+    image = camera.resize(image, (nw,nh), interpolation=camera.INTER_LINEAR)
     new_image = np.ones((h,w,3), np.uint8) * 128
     h_start = (h-nh)//2
     w_start = (w-nw)//2
@@ -195,7 +206,7 @@ def evaluate(yolo_outputs, image_shape, class_names, anchors):
 
 def draw_boxes(image, boxes, scores, classes):
     _, ax = plt.subplots(1)
-    ax.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    ax.imshow(camera.cvtColor(image, camera.COLOR_BGR2RGB))
     image_h, image_w, _ = image.shape
 
     for i, bbox in enumerate(boxes):
