@@ -1,0 +1,30 @@
+import numpy as np
+from pynq_peripherals import PmodGroveAdapter
+
+# setup led bar on the board 
+overlay = DpuOverlay("dpu.bit")
+# setup led bar on the board 
+adapter = PmodGroveAdapter(overlay.PMODA, G2='grove_ledbar')
+ledbar = adapter.G3
+
+
+
+daveDetected = True
+
+if daveDetected = True:
+  brightness = 3  # brightness of led bars
+green_to_red = 1
+
+level = (10 * final_count) // MAX_NUM_PEOPLE # calculate level to set on ledbar
+level = int(level) # requires integer
+
+
+# if level is out of range (1 to 10) then set to minimum or maximum value
+if(level <= 0):
+    level = 1
+elif(level > 10):
+    level = 10
+
+# set the level on the led bar
+print("Setting LED level to:", level)
+ledbar.set_level(int(level), brightness, green_to_red)
