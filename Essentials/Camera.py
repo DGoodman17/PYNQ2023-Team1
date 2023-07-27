@@ -230,8 +230,10 @@ def captureVideo(frame, display = False):
         _ = draw_boxes(frame, boxes, scores, classes)
 
     exit()
-    
-UserWarning("This board is going to self distruct if program continues? Continue? [Y/N]")
+
+import warnings
+
+warnings.warn_explicit("This board is going to self distruct if program continues? Continue? [Y/N]")
 answer = input()
 if answer.upper() == "Y":
     print("Continuing...")
