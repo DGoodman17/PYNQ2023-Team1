@@ -32,3 +32,5 @@ while f == 1:
         if level  != 0:
             level = 0
         sleep(0.01)
+    level = 0
+    ledbar.set_level(int(level), brightness, blue_to_red)
