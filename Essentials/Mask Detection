@@ -1,7 +1,5 @@
 from pynq_dpu import DpuOverlay
 overlay = DpuOverlay("dpu.bit")
-
-import bash
 import os
 import time
 import numpy as np
@@ -11,16 +9,10 @@ import colorsys
 from matplotlib.patches import Rectangle
 import matplotlib.pyplot as plt
 %matplotlib inline
-
-
 overlay.load_model("pt_face-mask-detection.xmodel")
-
-
 anchor_list = [10,13,16,30,33,23,30,61,62,45,59,119,116,90,156,198,373,326]
 anchor_float = [float(x) for x in anchor_list]
 anchors = np.array(anchor_float).reshape(-1, 2)
-
-
 '''Get model classification information'''	
 def get_class(classes_path):
     with open(classes_path) as f:
@@ -41,14 +33,11 @@ colors = list(map(lambda x:
 random.seed(0)
 random.shuffle(colors)
 random.seed(None)
-
-
 '''resize image with unchanged aspect ratio using padding'''
 def letterbox_image(image, size):
     ih, iw, _ = image.shape
     w, h = size
     scale = min(w/iw, h/ih)
-    #print(scale)
     
     nw = int(iw*scale)
     nh = int(ih*scale)
@@ -79,8 +68,6 @@ def pre_process(image, model_image_size):
     image_data /= 255.
     image_data = np.expand_dims(image_data, 0) 	
     return image_data
-
-
 '''boxes_and_score is calling correct_boxes and _get_feats function'''
 
 # function to get features
@@ -100,6 +87,7 @@ def _get_feats(feats, anchors, num_classes, input_shape):
     box_confidence = 1/(1+np.exp(-predictions[..., 4:5]))
     box_class_probs = 1/(1+np.exp(-predictions[..., 5:]))
     return box_xy, box_wh, box_confidence, box_class_probs
+
 
 def correct_boxes(box_xy, box_wh, input_shape, image_shape):
     box_yx = box_xy[..., ::-1]
@@ -123,6 +111,7 @@ def correct_boxes(box_xy, box_wh, input_shape, image_shape):
     boxes *= np.concatenate([image_shape, image_shape], axis = -1)
     return boxes
 
+
 def boxes_and_scores(feats, anchors, classes_num, input_shape, image_shape):
     box_xy, box_wh, box_confidence, box_class_probs = _get_feats(feats, anchors, classes_num, input_shape)
     boxes = correct_boxes(box_xy, box_wh, input_shape, image_shape)
@@ -130,8 +119,6 @@ def boxes_and_scores(feats, anchors, classes_num, input_shape, image_shape):
     box_scores = box_confidence * box_class_probs
     box_scores = np.reshape(box_scores, [-1, classes_num])
     return boxes, box_scores
-
-
 def nms_boxes(boxes, scores):
     """Suppress non-maximal boxes.
 
@@ -209,8 +196,6 @@ def evaluate(yolo_outputs, image_shape, class_names, anchors):
     classes_ = np.concatenate(classes_, axis = 0)
 
     return boxes_, scores_, classes_
-
-
 '''Draw detection frame'''
 def draw_boxes(image, boxes, scores, classes):
     _, ax = plt.subplots(1)
@@ -233,85 +218,23 @@ def draw_boxes(image, boxes, scores, classes):
         ax.annotate(label, (center_x, center_y), color=color, weight='bold', 
                     fontsize=12, ha='center', va='center')
     return ax
-
-
-image_folder = 'img/' #path to the folder containing images
-original_images = [i for i in os.listdir(image_folder) if i.endswith("jpg")] #put the images in original images list, if jpg
-total_images = len(original_images) #getting the length of original_images list
-
-
 dpu = overlay.runner
 
 inputTensors = dpu.get_input_tensors()
 outputTensors = dpu.get_output_tensors()
-
-
 shapeIn = tuple(inputTensors[0].dims) #get the shape of the input tensor
 print(shapeIn)
-
-
 #get the shape of the output tensor
 #for this model we have two output tensors: 
 #one containing the bounding box coordinates and second containing the confidence score
 shapeOut0 = (tuple(outputTensors[0].dims)) 
 shapeOut1 = (tuple(outputTensors[1].dims)) 
-print(shapeOut0)
-print(shapeOut1)
-
-
 outputSize0 = int(outputTensors[0].get_data_size() / shapeIn[0]) # 12675
 outputSize1 = int(outputTensors[1].get_data_size() / shapeIn[0]) # 50700
-print(outputSize0)
-print(outputSize1)
-
-
 input_data = [np.empty(shapeIn, dtype=np.float32, order="C")]
 output_data = [np.empty(shapeOut0, dtype=np.float32, order="C"), 
                np.empty(shapeOut1, dtype=np.float32, order="C")]
 image = input_data[0]
-
-
-'''Run takes the image, and calls three functions pre_process, evaluate, and draw_boxes function'''
-def run(image_index, display=False):
-    # Read input image
-    input_image = cv2.imread(os.path.join(image_folder, original_images[image_index]))
-    print(input_image.shape)
-    # Pre-processing
-    image_size = input_image.shape[:2]
-    #Note here we are giving the input image size 512 x 512
-    image_data = np.array(pre_process(input_image, (512, 512)), dtype=np.float32) 
-    
-    # Fetch data to DPU and trigger it
-    image[0,...] = image_data.reshape(shapeIn[1:])
-    job_id = dpu.execute_async(input_data, output_data)
-    dpu.wait(job_id)
-    
-    # Retrieve output data
-    conv_out0 = np.reshape(output_data[0], shapeOut0)
-    conv_out1 = np.reshape(output_data[1], shapeOut1)
-    yolo_outputs = [conv_out0, conv_out1]
-    
-    # Decode output from YOLOv3
-    boxes, scores, classes = evaluate(yolo_outputs, image_size, class_names, anchors)
-    
-    if display:
-        _ = draw_boxes(input_image, boxes, scores, classes)
-#     print("Number of detected objects: {}".format(len(boxes)))
-
-
-run(8, display=True) #change the image index from 1 to 8 to detect face mask on different images
-
-
-videoIn = cv2.VideoCapture(0)
-videoIn.set(cv2.CAP_PROP_FRAME_WIDTH, 640);
-videoIn.set(cv2.CAP_PROP_FRAME_HEIGHT, 480);
-
-print("Capture device is open: " + str(videoIn.isOpened()))
-
-
-ret, frame = videoIn.read()
-
-
 def run_webcam(webcam_image, display=False):
     # Read input image
     input_image = webcam_image
@@ -335,8 +258,9 @@ def run_webcam(webcam_image, display=False):
     if display:
         input_image = draw_boxes_on_frame(input_image, boxes, scores, classes) #different function called to draw bouding boxes
     return  input_image
-
-
+videoIn = cv2.VideoCapture(0)
+videoIn.set(cv2.CAP_PROP_FRAME_WIDTH, 640);
+videoIn.set(cv2.CAP_PROP_FRAME_HEIGHT, 480);
 def draw_boxes_on_frame(image, boxes, scores, classes):
     image_h, image_w, _ = image.shape
     for i, bbox in enumerate(boxes):
@@ -357,14 +281,12 @@ def draw_boxes_on_frame(image, boxes, scores, classes):
         thickness=2
         image = cv2.putText(image, label, (int(center_x), int(center_y)), font, fontScale, color, thickness, cv2.LINE_AA)
     return image
-
-
 from IPython.display import display, Image
 display_handle=display(None, display_id=True)
 try:
     while True:
         _, frame = videoIn.read()
-        frame = run_webcam(frame, display=True)
+       # frame = run_webcam(frame, display=True)
 #         frame = cv2.flip(frame, 1) # if your camera reverses your image
         _, frame = cv2.imencode('.jpeg', frame)
         display_handle.update(Image(data=frame.tobytes()))
@@ -373,13 +295,3 @@ except KeyboardInterrupt:
 finally:
     videoIn.release()
     display_handle.update(None)
-
-
-videoIn.release()
-
-
-time1 = time.time()
-[run(i) for i in range(total_images)]
-time2 = time.time()
-fps = total_images/(time2-time1)
-print("Performance: {} FPS".format(fps))
