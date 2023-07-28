@@ -36,9 +36,17 @@ while f == 1:
         for i in range(1,11):
             level = i
             ledbar.set_level(int(level), brightness, blue_to_red)
-            sleep(0.01)
+            sleep(0.1)
         if level  != 0:
             level = 0
-        sleep(0.01)
+        sleep(0.1)
+        while posedave == True:
+            for i in range(1,11):
+                level = i
+                ledbar.set_level(int(level), brightness, blue_to_red)
+                sleep(0.01)
+            if level !=0:
+                level = 0
+            sleep(0.1)
     level = 0
     ledbar.set_level(int(level), brightness, blue_to_red)
