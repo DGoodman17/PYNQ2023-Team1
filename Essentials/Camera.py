@@ -20,6 +20,8 @@ from pynq_dpu import DpuOverlay
 overlay = DpuOverlay("dpu.bit")
 
 #Main Var block
+inputTensors = dpu.get_input_tensors()
+outputTensors = dpu.get_output_tensors()
 dpu = overlay.runner
 videoIn = camera.VideoCapture(0)
 ret, frame = videoIn.read()
