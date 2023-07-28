@@ -23,7 +23,7 @@ f = 1
 sample_interval = 0.1 #seconds
 number_of_samples = 1
 while f == 1:
-    print('{:.1f}: {}'.format(number_of_samples*sample_interval, "motion detected" if m.motion_detected() else "-"))
+    #print('{:.1f}: {}'.format(number_of_samples*sample_interval, "motion detected" if m.motion_detected() else "-"))
     if m.motion_detected:
         dave_detected = True
     sleep(sample_interval)
@@ -32,7 +32,7 @@ while f == 1:
     brightness = 3
     blue_to_red = 1
     # set the level on the led bar
-    while daveDetected == True:
+    while davedetected == True:
         for i in range(1,11):
             level = i
             ledbar.set_level(int(level), brightness, blue_to_red)
